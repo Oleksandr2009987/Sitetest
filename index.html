@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новини України</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .admin-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .admin-panel {
+            display: none;
+            margin-top: 20px;
+        }
+        .news-card {
+            margin-bottom: 20px;
+        }
+        .edit-btn, .delete-btn {
+            margin-left: 10px;
+        }
+        .main-photo {
+            max-width: 100%;
+            height: auto;
+        }
+        .read-more-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">Новини України</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#">Головна</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Політика</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Економіка</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Культура</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Спорт</a></li>
+                    </ul>
+                </div>
+                <button id="adminBtn" class="btn btn-warning admin-btn" onclick="showLogin()">Вхід як адміністратор</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container py-5">
+        <div class="row">
+            <div class="col-lg-8" id="newsContainer">
+                <h1 class="mb-4">Головні новини</h1>
+                <!-- Новини додаються через JS -->
+            </div>
+
+            <div class="col-lg-4">
+                <h2 class="mb-4">Категорії</h2>
+                <ul class="list-group">
+                    <li class="list-group-item"><a href="#">Політика</a></li>
+                    <li class="list-group-item"><a href="#">Економіка</a></li>
+                    <li class="list-group-item"><a href="#">Культура</a></li>
+                    <li class="list-group-item"><a href="#">Спорт</a></li>
+                    <li class="list-group-item"><a href="#">Технології</a></li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <p>© 2024 Новини України. Всі права захищені.</p>
+        </div>
+    </footer>
+
+    <div id="loginModal" class="modal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Вхід як адміністратор</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Логін</label>
+                            <input type="text" class="form-control" id="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Увійти</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="admin-panel">
+        <h2>Панель адміністратора</h2>
+        <button class="btn btn-warning" onclick="addNews()">Додати новину</button>
+        <button class="btn btn-danger" onclick="logout()">Вийти</button>
+    </div>
+
+    <div id="addNewsModal" class="modal" tabindex="-1" aria-labelledby="addNewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addNewsModalLabel">Додати новину</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addNewsForm">
+                        <div class="mb-3">
+                            <label for="newsTitle" class="form-label">Заголовок</label>
+                            <input type="text" class="form-control" id="newsTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newsDescription" class="form-label">Опис</label>
+                            <textarea class="form-control" id="newsDescription" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newsPhoto" class="form-label">Фото</label>
+                            <input type="file" class="form-control" id="newsPhoto" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Додати</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Загружаем новости из localStorage, если они есть
+        let newsData = JSON.parse(localStorage.getItem('newsData')) || [];
+
+        function showLogin() {
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+            modal.show();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === 'admin' && password === 'admin123') {
+                document.getElementById('adminBtn').style.display = 'none';
+                const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                modal.hide();
+                document.getElementById('adminPanel').style.display = 'block';
+                loadNews();
+            } else {
+                alert('Невірний логін або пароль');
+            }
+        });
+
+        function logout() {
+            document.getElementById('adminBtn').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+            loadNews();
+        }
+
+        function addNews() {
+            const modal = new bootstrap.Modal(document.getElementById('addNewsModal'));
+            modal.show();
+        }
+
+        document.getElementById('addNewsForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const title = document.getElementById('newsTitle').value;
+            const description = document.getElementById('newsDescription').value;
+            const fileInput = document.getElementById('newsPhoto');
+            let photo = 'https://via.placeholder.com/800x400?text=Новина';
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photo = e.target.result;
+                    const newId = newsData.length + 1;
+                    const newNews = { title, description, id: newId, photo, content: 'Повний зміст новини ' + newId };
+                    newsData.push(newNews);
+                    localStorage.setItem('newsData', JSON.stringify(newsData)); // Сохраняем в localStorage
+                    loadNews();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addNewsModal'));
+                    modal.hide();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                const newId = newsData.length + 1;
+                const newNews = { title, description, id: newId, photo, content: 'Повний зміст новини ' + newId };
+                newsData.push(newNews);
+                localStorage.setItem('newsData', JSON.stringify(newsData)); // Сохраняем в localStorage
+                loadNews();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addNewsModal'));
+                modal.hide();
+            }
+        });
+
+        function loadNews() {
+            const newsContainer = document.getElementById('newsContainer');
+            newsContainer.innerHTML = '';
+            newsData.forEach(news => {
+                const newsCard = document.createElement('div');
+                newsCard.classList.add('col-md-6', 'news-card');
+                newsCard.innerHTML = `
+                    <div class="card">
+                        <img src="${news.photo}" class="card-img-top main-photo" alt="${news.title}">
+                        <div class="card-body">
+                            <h5 class="card-title">${news.title}</h5>
+                            <p class="card-text">${news.description}</p>
+                            <a href="#" class="btn btn-primary read-more-btn" onclick="alert('${news.content}')">Читати більше</a>
+                            <div class="admin-actions" style="display: ${document.getElementById('adminBtn').style.display === 'none' ? 'block' : 'none'};">
+                                <button class="btn btn-warning edit-btn" onclick="editNews(${news.id})">Редагувати</button>
+                                <button class="btn btn-danger delete-btn" onclick="deleteNews(${news.id})">Видалити</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                newsContainer.appendChild(newsCard);
+            });
+        }
+
+        function editNews(newsId) {
+            const news = newsData.find(n => n.id === newsId);
+            if (news) {
+                document.getElementById('newsTitle').value = news.title;
+                document.getElementById('newsDescription').value = news.description;
+                const modal = new bootstrap.Modal(document.getElementById('addNewsModal'));
+                modal.show();
+                document.getElementById('addNewsForm').onsubmit = function(event) {
+                    event.preventDefault();
+                    news.title = document.getElementById('newsTitle').value;
+                    news.description = document.getElementById('newsDescription').value;
+                    localStorage.setItem('newsData', JSON.stringify(newsData)); // Обновляем в localStorage
+                    loadNews();
+                    modal.hide();
+                };
+            }
+        }
+
+        function deleteNews(newsId) {
+            if (confirm('Ви дійсно хочете видалити цю новину?')) {
+                newsData = newsData.filter(news => news.id !== newsId);
+                localStorage.setItem('newsData', JSON.stringify(newsData)); // Обновляем в localStorage
+                loadNews();
+            }
+        }
+
+        // Загружаем новости при загрузке страницы
+        loadNews();
+    </script>
+</body>
+</html>

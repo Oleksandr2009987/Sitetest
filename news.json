@@ -1,0 +1,22 @@
+[
+    {
+        "title": "Новость 1",
+        "description": "Описание новости 1"
+    },
+    {
+        "title": "Новость 2",
+        "description": "Описание новости 2"
+    }
+]
+{
+  "name": "news-app",
+  "version": "1.0.0",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "body-parser": "^1.19.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}

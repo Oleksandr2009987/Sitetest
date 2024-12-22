@@ -1,0 +1,12 @@
+[
+  {
+    "title": "Новина 1",
+    "description": "Це перша новина",
+    "photo": "data:image/png;base64,..."
+  },
+  {
+    "title": "Новина 2",
+    "description": "Це друга новина",
+    "photo": "data:image/png;base64,..."
+  }
+]
